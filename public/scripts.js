@@ -1,42 +1,47 @@
-document.addEventListener("DOMContentLoaded", function() {
-    const formContainer = document.getElementById("form-container");
-    const contactForm = document.getElementById("contact-form");
+function showForm(type) {
+    document.getElementById('form-container').style.display = 'block';
+    document.getElementById('type').value = type;
+}
 
-    window.showForm = function(type) {
-      document.getElementById("type").value = type;
-      formContainer.style.display = "block";
+function hideForm() {
+    document.getElementById('form-container').style.display = 'none';
+}
+
+async function sendEmail(event) {
+    event.preventDefault();
+    
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone').value;
+    const message = document.getElementById('message').value;
+    const type = document.getElementById('type').value;
+    
+    const data = {
+        name,
+        email,
+        phone,
+        message,
+        type
     };
 
-    window.hideForm = function() {
-      formContainer.style.display = "none";
-    };
+    try {
+        const response = await fetch('/api/sendTestEmail', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
 
-    window.sendEmail = function(event) {
-      event.preventDefault();
-      const formData = new FormData(contactForm);
-      const data = {};
-      formData.forEach((value, key) => {
-        data[key] = value;
-      });
+        const result = await response.json();
 
-      fetch("/api/send-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      })
-      .then(response => {
         if (response.ok) {
-          alert("Email envoyé avec succès !");
-          contactForm.reset();
-          hideForm();
+            alert('Email envoyé avec succès!');
+            hideForm();
         } else {
-          return response.text().then(text => { throw new Error(text) });
+            alert('Erreur lors de l\'envoi de l\'email: ' + result.error);
         }
-      })
-      .catch(error => {
-        alert("Erreur lors de l'envoi de l'email: " + error.message);
-      });
-    };
-});
+    } catch (error) {
+        alert('Erreur lors de l\'envoi de l\'email: ' + error.message);
+    }
+}
