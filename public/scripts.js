@@ -4,28 +4,34 @@ function showForm(type) {
 }
 
 function hideForm() {
-    document.getElementById('contact-form').reset();
     document.getElementById('form-container').style.display = 'none';
 }
 
 async function sendEmail(event) {
     event.preventDefault();
-    const form = event.target;
+    
+    const form = document.getElementById('contact-form');
     const formData = new FormData(form);
     const jsonData = {};
-    formData.forEach((value, key) => jsonData[key] = value);
+    
+    formData.forEach((value, key) => {
+        jsonData[key] = value;
+    });
 
     try {
-        const response = await fetch('/.netlify/functions/sendTestEmail', {
+        const response = await fetch('/.netlify/functions/SendTestEmail', {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(jsonData)
         });
-        const result = await response.json();
+
         if (response.ok) {
-            alert('Email sent successfully');
-            hideForm();
+            alert('Email envoyé avec succès');
         } else {
-            throw new Error(result.message);
+            const errorData = await response.json();
+            alert(`Erreur lors de l'envoi de l'email: ${errorData.message}`);
         }
     } catch (error) {
         alert(`Erreur lors de l'envoi de l'email: ${error.message}`);
