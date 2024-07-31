@@ -2,28 +2,33 @@ const nodemailer = require('nodemailer');
 const dotenv = require('dotenv');
 dotenv.config();
 
+const { EMAIL_SERVICE, EMAIL_USER, EMAIL_PASS } = process.env;
+
 const sendEmail = async (name, email, phone, message, type) => {
+  console.log('SendEmail function called with:', { name, email, phone, message, type }); // Ajout de message de débogage
+
   const transporter = nodemailer.createTransport({
-    service: process.env.EMAIL_SERVICE,
+    service: EMAIL_SERVICE,
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    }
+      user: EMAIL_USER,
+      pass: EMAIL_PASS,
+    },
   });
 
   const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: process.env.EMAIL_USER,
-    subject: `Nouveau message de ${name} (${type})`,
-    text: `
-      Nom: ${name}
-      Email: ${email}
-      Téléphone: ${phone || 'Non fourni'}
-      Message: ${message}
-    `
+    from: EMAIL_USER,
+    to: EMAIL_USER, // Mettez ici l'adresse email de destination
+    subject: `Nouveau message de ${name}`,
+    text: `Nom: ${name}\nEmail: ${email}\nTéléphone: ${phone}\nMessage: ${message}\nType: ${type}`,
   };
 
-  return transporter.sendMail(mailOptions);
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Email sent successfully'); // Ajout de message de débogage
+  } catch (error) {
+    console.error('Error in sendEmail:', error); // Ajout de message de débogage
+    throw error;
+  }
 };
 
 module.exports = sendEmail;
