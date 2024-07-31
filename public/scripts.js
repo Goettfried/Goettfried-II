@@ -1,16 +1,16 @@
 document.addEventListener("DOMContentLoaded", function() {
     const formContainer = document.getElementById("form-container");
     const contactForm = document.getElementById("contact-form");
-  
+
     window.showForm = function(type) {
       document.getElementById("type").value = type;
       formContainer.style.display = "block";
     };
-  
+
     window.hideForm = function() {
       formContainer.style.display = "none";
     };
-  
+
     window.sendEmail = function(event) {
       event.preventDefault();
       const formData = new FormData(contactForm);
@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function() {
       formData.forEach((value, key) => {
         data[key] = value;
       });
-  
+
       fetch("/api/send-email", {
         method: "POST",
         headers: {
@@ -39,4 +39,4 @@ document.addEventListener("DOMContentLoaded", function() {
         alert("Erreur lors de l'envoi de l'email: " + error.message);
       });
     };
-}); 
+});

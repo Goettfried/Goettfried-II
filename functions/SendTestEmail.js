@@ -1,41 +1,34 @@
-require('dotenv').config();
 const nodemailer = require('nodemailer');
+require('dotenv').config();
 
-exports.handler = async (event, context) => {
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ message: 'Method Not Allowed' }),
-    };
-  }
+exports.handler = async function(event, context) {
+  const { name, email, phone, message, type } = JSON.parse(event.body);
 
-  const { name, email, phone, message } = JSON.parse(event.body);
-
-  const transporter = nodemailer.createTransport({
+  let transporter = nodemailer.createTransport({
     service: process.env.EMAIL_SERVICE,
     auth: {
       user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
+      pass: process.env.EMAIL_PASS
+    }
   });
 
-  const mailOptions = {
-    from: email,
+  let mailOptions = {
+    from: process.env.EMAIL_USER,
     to: process.env.EMAIL_USER,
-    subject: `New message from ${name}`,
-    text: `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\nMessage: ${message}`,
+    subject: `Nouveau message de ${name}`,
+    text: `Type: ${type}\nNom: ${name}\nEmail: ${email}\nTéléphone: ${phone}\nMessage: ${message}`
   };
 
   try {
     await transporter.sendMail(mailOptions);
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: 'Email sent successfully' }),
+      body: JSON.stringify({ message: 'Email envoyé avec succès!' })
     };
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: 'Failed to send email', error }),
+      body: JSON.stringify({ error: error.message })
     };
   }
 };
