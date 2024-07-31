@@ -39,4 +39,4 @@ document.addEventListener("DOMContentLoaded", function() {
         alert("Erreur lors de l'envoi de l'email: " + error.message);
       });
     };
-  });  
+}); 

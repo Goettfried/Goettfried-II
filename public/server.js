@@ -1,29 +1,41 @@
 const express = require('express');
-const rateLimit = require('express-rate-limit');
-const bodyParser = require('body-parser');
-const sendEmail = require('./functions/SendTestEmail');
-
+const path = require('path');
 const app = express();
+const port = process.env.PORT || 3000;
 
-// Limitation de taux
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // Limite chaque IP à 10 requêtes par fenêtre (ici, 15 minutes)
-  message: 'Trop de requêtes créées à partir de cette IP, veuillez réessayer après 15 minutes',
-});
-
-app.use('/api/', limiter); // Appliquer la limitation de taux uniquement à l'API
-
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/api/send-email', (req, res) => {
+  // Code pour envoyer l'email
+  const nodemailer = require('nodemailer');
+  require('dotenv').config();
+
   const { name, email, phone, message, type } = req.body;
-  sendEmail(name, email, phone, message, type)
-    .then(() => res.status(200).send('Email envoyé avec succès'))
-    .catch(error => res.status(500).send(`Erreur lors de l'envoi de l'email: ${error.message}`));
+
+  let transporter = nodemailer.createTransport({
+    service: process.env.EMAIL_SERVICE,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
+
+  let mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: process.env.EMAIL_USER,
+    subject: `Nouveau message de ${name}`,
+    text: `Type: ${type}\nNom: ${name}\nEmail: ${email}\nTéléphone: ${phone}\nMessage: ${message}`
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+    res.status(200).json({ message: 'Email envoyé avec succès!' });
+  });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Serveur en cours d'exécution sur le port ${PORT}`);
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
