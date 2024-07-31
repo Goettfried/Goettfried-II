@@ -1,8 +1,9 @@
+require('dotenv').config();
+
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const bodyParser = require('body-parser');
-const sendEmail = require('./functions/SendTestEmail');
-require('dotenv').config();
+const sendEmail = require('./functions/sendTestEmail');
 
 const app = express();
 
@@ -19,9 +20,13 @@ app.use(bodyParser.json());
 
 app.post('/api/send-email', (req, res) => {
   const { name, email, phone, message, type } = req.body;
+  console.log("Requête reçue avec les données:", req.body); // Ajout de message de débogage
   sendEmail(name, email, phone, message, type)
     .then(() => res.status(200).send('Email envoyé avec succès'))
-    .catch(error => res.status(500).send(`Erreur lors de l'envoi de l'email: ${error.message}`));
+    .catch(error => {
+      console.error("Erreur lors de l'envoi de l'email:", error); // Ajout de message de débogage
+      res.status(500).send(`Erreur lors de l'envoi de l'email: ${error.message}`);
+    });
 });
 
 const PORT = process.env.PORT || 3000;
