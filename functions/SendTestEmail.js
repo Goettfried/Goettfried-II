@@ -5,7 +5,8 @@ const nodemailer = require('nodemailer');
 async function sendEmail(name, email, phone, message, type) {
   console.log("Préparation de l'envoi d'email avec les variables d'environnement:", {
     service: process.env.EMAIL_SERVICE,
-    user: process.env.EMAIL_USER
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS, // Ajout de pass pour vérifier la présence
   }); // Ajout de message de débogage
 
   let transporter = nodemailer.createTransport({
