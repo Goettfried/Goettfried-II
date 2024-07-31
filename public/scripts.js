@@ -1,48 +1,28 @@
-function showForm(type) {
-    document.getElementById('type').value = type;
-    document.getElementById('form-container').style.display = 'block';
-}
-
-function hideForm() {
-    document.getElementById('form-container').style.display = 'none';
-}
-
-async function sendEmail(event) {
+document.getElementById('contact-form').addEventListener('submit', function(event) {
     event.preventDefault();
     
-    const form = document.getElementById('contact-form');
-    const formData = new FormData(form);
-    const jsonData = {};
-    
-    formData.forEach((value, key) => {
-        jsonData[key] = value;
+    const formData = new FormData(this);
+    const data = {
+      name: formData.get('name'),
+      email: formData.get('email'),
+      phone: formData.get('phone'),
+      message: formData.get('message'),
+      type: 'contact' 
+    };
+  
+    fetch('/api/send-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+    .then(response => response.text())
+    .then(data => {
+      alert(data);
+    })
+    .catch(error => {
+      console.error('Erreur lors de l\'envoi de l\'email:', error);
+      alert(`Erreur lors de l'envoi de l'email: ${error.message}`);
     });
-
-    try {
-        const response = await fetch('/.netlify/functions/SendTestEmail', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(jsonData)
-        });
-
-        if (response.ok) {
-            alert('Email envoyé avec succès');
-        } else {
-            const errorData = await response.json();
-            alert(`Erreur lors de l'envoi de l'email: ${errorData.message}`);
-        }
-    } catch (error) {
-        alert(`Erreur lors de l'envoi de l'email: ${error.message}`);
-    }
-}
-
-function toggleMusic() {
-    const music = document.getElementById('music');
-    if (music.paused) {
-        music.play();
-    } else {
-        music.pause();
-    }
-}
+  });  

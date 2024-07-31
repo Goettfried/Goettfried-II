@@ -1,13 +1,12 @@
 require('dotenv').config();
-
 const nodemailer = require('nodemailer');
 
 async function sendEmail(name, email, phone, message, type) {
   console.log("Préparation de l'envoi d'email avec les variables d'environnement:", {
     service: process.env.EMAIL_SERVICE,
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // Ajout de pass pour vérifier la présence
-  }); // Ajout de message de débogage
+    pass: process.env.EMAIL_PASS,
+  });
 
   let transporter = nodemailer.createTransport({
     service: process.env.EMAIL_SERVICE,
@@ -26,9 +25,9 @@ async function sendEmail(name, email, phone, message, type) {
 
   try {
     let info = await transporter.sendMail(mailOptions);
-    console.log("Email envoyé:", info.response); // Ajout de message de débogage
+    console.log("Email envoyé:", info.response);
   } catch (error) {
-    console.error("Erreur lors de l'envoi de l'email:", error); // Ajout de message de débogage
+    console.error("Erreur lors de l'envoi de l'email:", error);
     throw error;
   }
 }
